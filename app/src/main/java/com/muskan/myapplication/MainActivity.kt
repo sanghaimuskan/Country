@@ -20,7 +20,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             val data = viewModel.countriesData.collectAsState()
             MainScreenUi(data.value){
-                viewModel.getSomeData()
+                viewModel.getSerialApiCall()
             }
         }
     }

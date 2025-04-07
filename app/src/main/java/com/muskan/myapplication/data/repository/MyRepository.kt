@@ -4,6 +4,7 @@ import com.muskan.myapplication.data.local.CountryDao
 import com.muskan.myapplication.data.local.CountryEntity
 import com.muskan.myapplication.data.model.CountryAPIDataModel
 import com.muskan.myapplication.data.network.ApiService
+import kotlinx.coroutines.flow.Flow
 import retrofit2.Response
 import javax.inject.Inject
 
@@ -12,13 +13,15 @@ class MyRepository @Inject constructor(
     private val countryDao: CountryDao
 ){
     suspend fun fetchData(): Response<CountryAPIDataModel?> {
-        apiService.endpoint().body()?.let{
+       val response =  apiService.endpoint()
+        response.body()?.let{
+            countryDao.deleteData()
             countryDao.addCountry(it.toCountryEntity())
         }
-        return apiService.endpoint()
+        return response
     }
 
-    suspend fun getCountryFromDb():CountryEntity?{
+    fun getCountryFromDb(): Flow<CountryEntity?> {
         return countryDao.getCountry()
     }
 }

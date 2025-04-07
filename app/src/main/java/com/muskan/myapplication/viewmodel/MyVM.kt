@@ -8,6 +8,8 @@ import com.muskan.myapplication.data.repository.MyRepository
 import com.muskan.myapplication.utils.handler
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -24,10 +26,12 @@ class MyVM @Inject constructor(
 
     init{
         viewModelScope.launch(Dispatchers.IO) {
-            _countriesData.value = repo.getCountryFromDb()
+            repo.getCountryFromDb().collect{
+                _countriesData.value = it
+            }
         }
 
-        getSomeData()
+        getParallelCall()
     }
 
     fun getSomeData(){
@@ -42,6 +46,42 @@ class MyVM @Inject constructor(
                 }
             }catch(ex:Exception) {
                 Log.d("muskan", "getSomeData: $ex")
+            }
+        }
+    }
+
+
+    fun getParallelCall(){
+        viewModelScope.launch (Dispatchers.IO){
+            val result = awaitAll(
+                async{
+                    repo.fetchData()
+                } ,
+                async{
+                    repo.fetchData()
+                }
+            )
+
+            val firstResult = result[0]
+            val secondResult = result[1]
+
+            if(firstResult.isSuccessful && secondResult.isSuccessful){
+                _countriesData.value = firstResult.body()?.toCountryEntity()
+            }else {
+                Log.e("MyVM", "API Errors: $firstResult, $secondResult")
+            }
+        }
+    }
+
+    fun getSerialApiCall(){
+        viewModelScope.launch (Dispatchers.IO){
+            val firstCall = repo.fetchData()
+
+            if(firstCall.isSuccessful){
+                val secondCall = repo.fetchData()
+                if(secondCall.isSuccessful){
+                    _countriesData.value = secondCall.body()?.toCountryEntity()
+                }
             }
         }
     }
