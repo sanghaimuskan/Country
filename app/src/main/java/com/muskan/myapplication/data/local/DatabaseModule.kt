@@ -2,6 +2,7 @@ package com.muskan.myapplication.data.local
 
 import android.content.Context
 import androidx.room.Room
+import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -23,8 +24,8 @@ object DatabaseModule{
         ).build()
     }
 
-    @Provides
-    fun provideCountryDao(db: CountryDataBase): CountryDao {
+    @Binds
+    fun provideDatabaseHelper(db: CountryDataBase):DatabaseHelper{
         return db.countryDao()
     }
 }

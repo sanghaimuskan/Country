@@ -55,14 +55,14 @@ class MyVM @Inject constructor(
         viewModelScope.launch (Dispatchers.IO){
             val result = awaitAll(
                 async{
-                    repo.fetchData()
+                    repo.fetchData() //api 1
                 } ,
                 async{
-                    repo.fetchData()
+                    repo.fetchData() //api2
                 }
             )
 
-            val firstResult = result[0]
+            val firstResult = result.first()
             val secondResult = result[1]
 
             if(firstResult.isSuccessful && secondResult.isSuccessful){

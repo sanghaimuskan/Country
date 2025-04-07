@@ -7,13 +7,14 @@ import androidx.room.Query
 import kotlinx.coroutines.flow.Flow
 
 @Dao
-interface CountryDao {
+interface CountryDao : DatabaseHelper{
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun addCountry(country: CountryEntity)
+    override suspend fun addCountry(country: CountryEntity)
 
     @Query("SELECT * FROM country LIMIT 1")
-    fun getCountry(): Flow<CountryEntity?>
+    override fun getCountry(): Flow<CountryEntity?>
 
     @Query("DELETE FROM country")
-    suspend fun deleteData()
+    override suspend fun deleteData()
 }
